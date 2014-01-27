@@ -95,7 +95,7 @@ public class Status : MonoBehaviour {
 			if(Physics.Raycast(ray, out hit)) {
 				closeWindows();
 				if ( hit.collider.name == "select" ) {
-					Application.LoadLevel(2);
+					Application.LoadLevel(1);
 				}
 				if ( hit.collider.name == ViewTable[0].name ) {
 					if ( DrawNextItem(0) ) {

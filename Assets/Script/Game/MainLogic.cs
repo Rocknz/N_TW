@@ -57,7 +57,7 @@ public class MainLogic : MonoBehaviour {
 				RaycastHit hit = new RaycastHit();
 				if(Physics.Raycast(ray, out hit)) {
 					if(player.transform == hit.transform){
-						Application.LoadLevel(3);
+						Application.LoadLevel(4);
 					}
 					foreach(Tile tiles in main_Tile){
 						if(tiles.myTile.transform == hit.transform){
