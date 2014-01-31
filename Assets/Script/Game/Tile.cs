@@ -3,12 +3,16 @@ using System.Collections;
 
 public class Tile : MonoBehaviour {
 	public GameObject myTile;
+	public GameObject myHp;
+	public GameObject myAttack;
+
 	public TileStatus myStatus;
 	public static tk2dSpriteCollectionData datas = (tk2dSpriteCollectionData)Resources.Load("Tiles Data/Tiles",typeof(tk2dSpriteCollectionData));
 	public static tk2dSpriteCollectionData poison = (tk2dSpriteCollectionData)Resources.Load("Tiles Data/Poison",typeof(tk2dSpriteCollectionData));
 	public static tk2dSpriteAnimation poisona = (tk2dSpriteAnimation)Resources.Load("Tiles Data/PoisonAni",typeof(tk2dSpriteAnimation));
-	public static Vector3 Position(int y,int x){
-		return (new Vector3((float)(x*3.5-10.5f),(float)(y*3.5-10.5f),(float)(0.0f)));
+
+	public static Vector3 Position(int y,int x,int z){
+		return (new Vector3((float)(x*350-1050.0f),(float)(y*350-1050f),(float)(z)));
 	}
 
 	public Tile(int y,int x,GameObject l){
@@ -17,49 +21,96 @@ public class Tile : MonoBehaviour {
 		myTile.AddComponent<tk2dSpriteAnimator>();
 		myTile.GetComponent<tk2dSpriteAnimator>().Library = poisona;
 		myTile.gameObject.transform.parent = l.transform;
-		myStatus = new TileStatus(y,x);
+		
+		myStatus = new TileStatus(y,x,0);
+
+
+		myHp = (GameObject)Instantiate(GameObject.Find ("Hp Label"));
+		myHp.name = "Hp";
+		myHp.transform.parent = myTile.transform;
+		myHp.transform.localPosition = new Vector3(150,100,-1);
+		myHp.GetComponent<UILabel>().color = new Color(255,0,0);
+
+		myAttack = (GameObject)Instantiate (GameObject.Find ("Hp Label"));
+		myAttack.name = "Atk";
+		myAttack.transform.parent = myTile.transform;
+		myAttack.transform.localPosition = new Vector3(150,-150,-1);
+
+		SetHp();
+		SetAtk();
 		SetTileByStatus();
 	}
-
+	public void SetHp(){
+		UILabel label = myHp.GetComponent<UILabel>();
+		label.text = myStatus.myHp.ToString();
+	}
+	public void SetAtk(){
+		UILabel label = myAttack.GetComponent<UILabel>();
+		label.text = myStatus.myAttack.ToString();
+	}
+	public void BeAttacked(int damage){
+		myStatus.myHp -= damage;
+		if(myStatus.myHp < 0) myStatus.myHp = 0;
+		SetHp ();
+	}
 	public void SetTileByStatus(){
-		SetPosition (myStatus.myY,myStatus.myX);
+		int z = 2;
+		if(myStatus.myType == MainLogic.TILETYPE.Enemy){
+			z = 1;
+		}
+		SetPosition (myStatus.myY,myStatus.myX,z);
 		SetImage (myStatus.myType);
-		SetScale (0.9f);
+		SetScale (1.0f);
+	}
+	private void SettingEnemy(){
+		tk2dSpriteAnimator ani = myTile.GetComponent<tk2dSpriteAnimator>();
+		ani.playAutomatically = true;
+		ani.Play ();
+		myTile.GetComponent<tk2dSprite>().scale = new Vector3(135.0f,135.0f,0.0f);
+		SetHp ();
+		SetAtk ();
+		myHp.GetComponent<UILabel>().fontSize = 100;
+		myAttack.GetComponent<UILabel>().fontSize = 100;
+	}
+	private void SettingNotEnemy(){
+		tk2dSpriteAnimator ani = myTile.GetComponent<tk2dSpriteAnimator>();
+		ani.playAutomatically = false;
+		ani.Stop();
+		myTile.GetComponent<tk2dSprite>().scale = new Vector3(90.0f,90.0f,0.0f);
+		SetHp ();
+		SetAtk ();
+		myHp.GetComponent<UILabel>().fontSize = 0;
+		myAttack.GetComponent<UILabel>().fontSize = 0;
 	}
 	private void SetImage(MainLogic.TILETYPE myType){
 		tk2dSprite sprite = myTile.GetComponent<tk2dSprite>();
-		tk2dSpriteAnimator ani = myTile.GetComponent<tk2dSpriteAnimator>();
 		switch(myType){
 		case MainLogic.TILETYPE.Enemy:
-			ani.playAutomatically = true;
-			ani.Play ();
+			SettingEnemy();
 			//sprite.SetSprite(datas,"Enemy");
 			break;
 		case MainLogic.TILETYPE.Sword:
-			ani.Stop();
 			sprite.SetSprite(datas,"Sword");
+			SettingNotEnemy();
 			break;
 		case MainLogic.TILETYPE.Wand:
-			ani.Stop ();
 			sprite.SetSprite(datas,"Wand");
+			SettingNotEnemy();
 			break;
 		case MainLogic.TILETYPE.Coin:
-			ani.Stop ();
 			sprite.SetSprite(datas,"Coin");
+			SettingNotEnemy();
 			break;
 		case MainLogic.TILETYPE.Potion:
-			ani.Stop ();
 			sprite.SetSprite(datas,"Potion");
+			SettingNotEnemy();
 			break;
 		}
 	}
 	public void SetScale(float x){
-		if(myStatus.myType == MainLogic.TILETYPE.Enemy){
-			x *= 1.5f;
-		}
 		myTile.transform.localScale = new Vector3(x,x,1);
 	}
-	public void SetPosition(int y,int x){
-		myTile.transform.localPosition = Position (y,x);
+	public void SetPosition(int y,int x,int z){
+		myTile.transform.localPosition = Position (y,x,z);
 	}
 }
