@@ -233,8 +233,8 @@ public class UserData : MonoBehaviour {
 		ins.Atk = 1;
 		ins.Def = 1;
 		ins.Int = 1;
-		ins.HpMax = 50;
-		ins.Hp = 50;
+		ins.HpMax = 100;
+		ins.Hp = 100;
 		ins.XienMax = 50;
 		ins.Xien = 0;
 		ins.Turn = 0;
