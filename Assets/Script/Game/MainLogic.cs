@@ -252,8 +252,9 @@ public class MainLogic : MonoBehaviour {
 						"oncompletetarget",gameObject,
 						"oncompleteparams",main_Tile[i,j]));
 
-
-					UserData.Instance.Hp -= Mathf.Abs (main_Tile[i,j].myStatus.myAttack - UserData.Instance.Def);
+					if(UserData.Instance.Def <= main_Tile[i,j].myStatus.myAttack){
+						UserData.Instance.Hp -= (main_Tile[i,j].myStatus.myAttack - UserData.Instance.Def);
+					}
 					if(UserData.Instance.Hp < 0) UserData.Instance.Hp = 0;
 					GameObject.Find ("UserText").GetComponent<UserText>().setStat();
 				}

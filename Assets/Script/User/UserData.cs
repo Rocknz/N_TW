@@ -230,9 +230,9 @@ public class UserData : MonoBehaviour {
 
 		ins.UpgradeLevel = upgrade;
 
-		ins.Atk = 10;
-		ins.Def = 10;
-		ins.Int = 10;
+		ins.Atk = 1;
+		ins.Def = 1;
+		ins.Int = 1;
 		ins.HpMax = 50;
 		ins.Hp = 50;
 		ins.XienMax = 50;
