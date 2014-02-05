@@ -16,6 +16,12 @@ public class UserData : MonoBehaviour {
 	private int mHeadLevel;
 	private int mSwordLevel;
 	private int mBodyLevel;
+
+	public static int ITEM_SIZE = 4;
+	private bool[] mHelmetExists = new bool[ITEM_SIZE];
+	private bool[] mHeadExists = new bool[ITEM_SIZE];
+	private bool[] mSwordExists = new bool[ITEM_SIZE];
+	private bool[] mBodyExists = new bool[ITEM_SIZE];
 	
 	private int mhaveGameData;
 	private TileStatus[,] mTS = new TileStatus[MainLogic.TILE_SIZE,MainLogic.TILE_SIZE];
@@ -108,6 +114,22 @@ public class UserData : MonoBehaviour {
 	public int BodyLevel {
 		get { return mBodyLevel; }
 		set { mBodyLevel = value;}
+	}
+	public bool[] HelmetExists {
+		get { return mHelmetExists; }
+		set { mHelmetExists = value;}
+	}
+	public bool[] HeadExists {
+		get { return mHeadExists; }
+		set { mHeadExists = value;}
+	}
+	public bool[] SwordExists {
+		get { return mSwordExists; }
+		set { mSwordExists = value;}
+	}
+	public bool[] BodyExists {
+		get { return mBodyExists; }
+		set { mBodyExists = value;}
 	}
 	public void LoadGameData(){
 		ins.haveGameData = PlayerPrefs.GetInt("haveGameData",0);
@@ -248,6 +270,12 @@ public class UserData : MonoBehaviour {
 			for(j=0;j<MainLogic.TILE_SIZE;j++){
 				ins.TS[i,j] = new TileStatus(i,j,0);
 			}
+		}
+		for ( i = 0 ; i < ITEM_SIZE ; i++ ) {
+			ins.HelmetExists[i] = i==0?true:false;
+			ins.HeadExists[i] = i==0?true:false;
+			ins.SwordExists[i] = i==0?true:false;
+			ins.BodyExists[i] = i==0?true:false;
 		}
 
 		DontDestroyOnLoad(this);	

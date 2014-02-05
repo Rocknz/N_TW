@@ -4,10 +4,12 @@ public class TW_Start : MonoBehaviour {
 	GameObject NewGame;
 	GameObject Status;
 	GameObject Continue;
+	GameObject Quit;
 	void Start () {
 		NewGame = GameObject.Find("NewGame");	
 		Status = GameObject.Find ("Status");
 		Continue = GameObject.Find ("Continue");
+		Quit = GameObject.Find ("Quit");
 	}
 	void Update () {
 		if(Input.GetButtonDown ("Fire1")) {
@@ -18,16 +20,22 @@ public class TW_Start : MonoBehaviour {
 					UserData.Instance.NewStat();
 					Application.LoadLevel(2);
 				}
-				if(Continue.transform == hit.transform){
+				else if(Continue.transform == hit.transform){
 					UserData.Instance.LoadGameData();
 					if(UserData.Instance.haveGameData == 1){
 						Application.LoadLevel(2);
 					}
 				}
-				if(Status.transform == hit.transform){
+				else if(Status.transform == hit.transform){
 					Application.LoadLevel(3);
 				}
+				else if(Quit.transform == hit.transform){
+					Application.Quit();
+				}
 			}
+		}
+		else if (Input.GetKeyDown(KeyCode.Escape)){ 
+			Application.Quit(); 
 		}
 	}
 }

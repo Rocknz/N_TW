@@ -4,7 +4,7 @@ using System.Collections;
 public class MainLogic : MonoBehaviour {
 	public enum TILETYPE{ Enemy, Sword, Wand, Potion, Coin};
 	public static int TILE_SIZE = 7; 
-	GameObject player;
+	GameObject player,monsterAttackSound;
 	Stack PathStack;
 	bool NowBreaking;
 	int FallingCount;
@@ -16,6 +16,7 @@ public class MainLogic : MonoBehaviour {
 
 	void Start () {
 		player = GameObject.Find ("Player");
+		monsterAttackSound = GameObject.Find ("MonsterAttackSound");
 		int i,j;
 		for(i=0;i<TILE_SIZE;i++){
 			for(j=0;j<TILE_SIZE;j++){
@@ -57,9 +58,6 @@ public class MainLogic : MonoBehaviour {
 			setDamage_now(0);
 		}
 		if(!NowBreaking){
-//			if(Input.touchCount != 0){
-//				Vector2 V2 = Input.GetTouch(0).position;
-//				Ray ray = Camera.main.ScreenPointToRay(new Vector3(V2.x,V2.y,0));
 			if(Input.GetButtonDown("Fire1")){
 				Vector2 V2 = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
 				Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -68,6 +66,15 @@ public class MainLogic : MonoBehaviour {
 					if(player.transform == hit.transform){
 						Application.LoadLevel(4);
 					}
+				}
+//
+			}
+			else if(Input.touchCount != 0){
+				Vector2 V2 = Input.GetTouch(0).position;
+				Ray ray = Camera.main.ScreenPointToRay(new Vector3(V2.x,V2.y,0));
+				RaycastHit hit = new RaycastHit();
+//			
+				if(Physics.Raycast(ray, out hit)) {
 					foreach(Tile tiles in main_Tile){
 						if(tiles.myTile.transform == hit.transform){
 							Add(new Vector2(tiles.myStatus.myX,tiles.myStatus.myY));
@@ -75,8 +82,8 @@ public class MainLogic : MonoBehaviour {
 					}
 				}
 			}
-//			else{
-			else if(Input.GetButtonDown("Fire2")){
+			else{
+//			else if(Input.GetButtonDown("Fire2")){
 				int count = PathStack.Count;
 				TILETYPE type = new TILETYPE();
 				bool isEnemyAttacked = false;
@@ -115,6 +122,10 @@ public class MainLogic : MonoBehaviour {
 					}
 					GameObject.Find ("UserText").GetComponent<UserText>().setStat();
 				}
+			}
+			
+			if (Input.GetKeyDown(KeyCode.Escape)){ 
+				Application.LoadLevel(1); 
 			}
 		}
 	}
@@ -241,7 +252,8 @@ public class MainLogic : MonoBehaviour {
 						"oncompletetarget",gameObject,
 						"oncompleteparams",main_Tile[i,j]));
 
-					UserData.Instance.Hp -= main_Tile[i,j].myStatus.myAttack;
+
+					UserData.Instance.Hp -= Mathf.Abs (main_Tile[i,j].myStatus.myAttack - UserData.Instance.Def);
 					if(UserData.Instance.Hp < 0) UserData.Instance.Hp = 0;
 					GameObject.Find ("UserText").GetComponent<UserText>().setStat();
 				}
@@ -256,6 +268,7 @@ public class MainLogic : MonoBehaviour {
 		// Moving Camera
 		Camera camera = Camera.main;
 		camera.GetComponent<Camera>().orthographicSize = 2150.0f;
+		monsterAttackSound.GetComponent<AudioSource>().Play();
 		yield return new WaitForSeconds(0.1f);
 		camera.GetComponent<Camera>().orthographicSize = 2200.0f;
 		yield return null;

@@ -3,15 +3,15 @@ using System.Collections;
 
 public class Upgrade : MonoBehaviour {
 	GameObject Back;
-	GameObject Fencing;
-	GameObject Healthing;
+	GameObject[] Click = new GameObject[UpgradeText.UC];
 	GameObject DoUpgrade;
 	
 	// Use this for initialization
 	void Start () {
 		Back = GameObject.Find ("Back");
-		Fencing = GameObject.Find ("U_Fencing");
-		Healthing = GameObject.Find ("U_Healthing");
+		Click[0] = GameObject.Find ("U_Fencing");
+		Click[1] = GameObject.Find ("U_Health");
+		Click[2] = GameObject.Find ("U_Concentration");
 		DoUpgrade = GameObject.Find ("DoUpgrade");
 	}
 
@@ -21,12 +21,15 @@ public class Upgrade : MonoBehaviour {
 		if(n != Selected){
 			if(Selected != -1){
 				this.GetComponent<UpgradeText>().NotSelect (Selected);
+				Click[Selected].transform.localScale = new Vector3(30,30,0.1f);
 			}
 			Selected = n;
-			this.GetComponent<UpgradeText>().Select (n);
+			this.GetComponent<UpgradeText>().Select (Selected);
+			Click[Selected].transform.localScale = new Vector3(40,40,0.1f);
 		}
 		else if(n == Selected){
-			this.GetComponent<UpgradeText>().NotSelect(n);
+			this.GetComponent<UpgradeText>().NotSelect(Selected);
+			Click[Selected].transform.localScale = new Vector3(30,30,0.1f);
 			Selected = -1;
 		}
 	}
@@ -38,14 +41,18 @@ public class Upgrade : MonoBehaviour {
 				if(Back.transform == hit.transform){
 					Application.LoadLevel(2);
 				}
-				else if(Fencing.transform == hit.transform){
-					NowSelected (0);
-				}
-				else if(Healthing.transform == hit.transform){
-					NowSelected (1);
-				}
 				else if(DoUpgrade.transform == hit.transform){
 					this.GetComponent<UpgradeText>().Up (Selected);
+					Click[Selected].transform.localScale = new Vector3(30,30,0.1f);
+					Selected = -1;
+				}
+				else{
+					int i;
+					for(i=0;i<UpgradeText.UC;i++){
+						if(Click[i].transform == hit.transform){
+							NowSelected (i);
+						}
+					}
 				}
 			}
 		}

@@ -35,6 +35,7 @@ public class Status : MonoBehaviour {
 		{"Head","Head_Name","Head_IntDamage","Head_HackDamage","Head_Next"},
 		{"Sword","Sword_Name","Sword_HackDamage","Sword_IntDamage","Sword_Next"},
 		{"Body","Body_Name","Body_HP","Body_Def","Body_Next"} };
+
 	string[,] JsonItemType = {{"","name","def","HP",""},
 		{"","name","int_damage","hack_damage",""},
 		{"","name","hack_damage","int_damage",""},
@@ -47,6 +48,15 @@ public class Status : MonoBehaviour {
 	string[] ViewPresentItemType = {"Present","Present_Name","Present_1","Present_2"};
 	string[] ViewNextItemType = {"Next","Next_Name","Next_1","Next_2","Next_Price"};
 
+	GameObject ViewHelmetTable;
+	GameObject ViewHeadTable;
+	GameObject ViewSwordTable;
+	GameObject ViewBodyTable;
+	GameObject[] ViewHelmet = new GameObject[4];
+	GameObject[] ViewHead = new GameObject[4];
+	GameObject[] ViewSword = new GameObject[4];
+	GameObject[] ViewBody = new GameObject[4];
+
 	int [] hash = {3,7,0,8};
 	//public enum ITEMTYPE {Sword,TAESWORD,B_M_SWORD,Helmet,Armor,NCL,Armlet,Head,Body,Hand};
 
@@ -57,11 +67,11 @@ public class Status : MonoBehaviour {
 		ViewMessage = GameObject.Find ("Message");
 		money = UserData.Instance.Coin;
 
-		Money = GameObject.Find ("Money");
-		TextMesh textMesh = Money.GetComponent<TextMesh> ();
-		textMesh.text = "Seed : " + money.ToString ();
+//		Money = GameObject.Find ("Money");
+	//	TextMesh textMesh = Money.GetComponent<TextMesh> ();
+//		textMesh.text = "Seed : " + money.ToString ();
 
-		ViewTable = new GameObject[6];
+		ViewTable = new GameObject[7];
 	
 		for ( int i = 0 ; i < 6 ; i++ ) 
 			ViewTable[i] = GameObject.Find ("ViewTable"+(i+1).ToString());
@@ -80,71 +90,116 @@ public class Status : MonoBehaviour {
 			ViewNextItem[i] = GameObject.Find (ViewNextItemType[i]);
 		}
 
+		ViewHelmetTable = GameObject.Find ("ViewHelmetTable");
+		ViewHeadTable = GameObject.Find ("ViewHeadTable");
+		ViewSwordTable = GameObject.Find ("ViewSwordTable");
+		ViewBodyTable = GameObject.Find ("ViewBodyTable");
+		ViewHelmetTable.transform.position = new Vector3 (0, 1f, 10);
+		ViewHeadTable.transform.position = new Vector3 (0, 1f, 10);
+		ViewSwordTable.transform.position = new Vector3 (0, 1f, 10);
+		ViewBodyTable.transform.position = new Vector3 (0, 1f, 10);
+		for ( int i = 0 ; i < 4 ; i++ ) {
+			ViewHelmet[i] = GameObject.Find ("Helmet_"+(i+1).ToString ());
+			ViewHead[i] = GameObject.Find ("Head_"+(i+1).ToString());
+			ViewSword[i] = GameObject.Find ("Sword_"+(i+1).ToString ());
+			ViewBody[i] = GameObject.Find ("Body_"+(i+1).ToString ());
+		}
+		SetItemColor();
 		//showWindows ("Start Call!");
 		DrawItemTable ();
 	}
-	
+
 	// Update is called once per frame
 	public static int LastSelectItem;
+	public static int LastSelectLevel;
 	void Update () {
+		SetItemColor ();
 		money = UserData.Instance.Coin;
 		if ( Input.GetButtonDown ("Fire1") ) {
 			//Vector2 V2 = new Vector2(Input.mousePosition.x,Input.mousePosition.y);
 			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 			RaycastHit hit = new RaycastHit();
 			if(Physics.Raycast(ray, out hit)) {
+				Debug.Log (hit.collider.name);
 				closeWindows();
 				if ( hit.collider.name == "select" ) {
 					Application.LoadLevel(1);
 				}
 				if ( hit.collider.name == ViewTable[0].name ) {
-					if ( DrawNextItem(0) ) {
-						LastSelectItem = 0;
-						ViewTable[4].transform.position = new Vector3(0,1.1f,-1.3f);
-					}
-					else isLastItem (0);
+					closeItemTable ();
+					ViewHelmetTable.transform.position = new Vector3(0,1f,-1.3f);
+
 				}
 				else if ( hit.collider.name == ViewTable[1].name ) {
-					if ( DrawNextItem (1) ) {
-						LastSelectItem = 1;
-						ViewTable[4].transform.position = new Vector3(0,1.1f,-1.3f);
-					}
-					else isLastItem(1);
+					closeItemTable ();
+					ViewHeadTable.transform.position = new Vector3(0,1f,-1.3f);
+
 				}
 				else if ( hit.collider.name == ViewTable[2].name ) {
-					if ( DrawNextItem (2) ) { 
-						LastSelectItem = 2;
-						ViewTable[4].transform.position = new Vector3(0,1.1f,-1.3f);
-					}
-					else isLastItem (2);
+					closeItemTable ();
+					ViewSwordTable.transform.position = new Vector3(0,1f,-1.3f);
+
 				}
 				else if ( hit.collider.name == ViewTable[3].name ) {
-					if ( DrawNextItem (3) ) { 
-						LastSelectItem = 3;
-						ViewTable[4].transform.position = new Vector3(0,1.1f,-1.3f);
-					}
-					else isLastItem (3);
+					closeItemTable ();
+					ViewBodyTable.transform.position = new Vector3(0,1f,-1.3f);
+
 				}
 				else if ( hit.collider.name == ViewTable[5].name ) {
 				//	closeWindows ();
 				}
 				else if ( hit.collider.name == "Bye" ) {
-					ViewTable[4].transform.position = new Vector3(0,1.1f,10);
+					ViewTable[4].transform.position = new Vector3(0,1f,10);
 				}
 				else if ( hit.collider.name == "Buy" ) {
-					BuyItem (LastSelectItem);
+					BuyItem (LastSelectItem,LastSelectLevel);
 					DrawItemTable ();
 					//Debug.Log (isPossibleBuyItem(LastSelectItem));
 					//Debug.Log (LastSelectItem);
-					ViewTable[4].transform.position = new Vector3(0,1.1f,10);
+					ViewTable[4].transform.position = new Vector3(0,1f,10);
+				}
+				else if ( hit.collider.name == ViewHelmetTable.name || hit.collider.name == ViewHeadTable.name ||
+				         hit.collider.name == ViewSwordTable.name || hit.collider.name == ViewBodyTable.name ) 
+					closeItemTable ();
+				else {
+					for ( int i = 0 ; i < 4;  i++ ) {
+						if ( hit.collider.name == ViewHelmet[i].name ) {
+							if ( DrawNextItem(0,i) ) {
+								LastSelectItem = 0;
+								LastSelectLevel = i;
+							}
+							else showWindows ("It is not Exists!");
+						}
+						else if ( hit.collider.name == ViewHead[i].name ) {
+							if ( DrawNextItem (1,i) ) {
+								LastSelectItem = 1;
+								LastSelectLevel = i;
+							}
+							else showWindows ("It is not Exists!");
+						}
+						else if ( hit.collider.name == ViewSword[i].name ) {
+							if ( DrawNextItem (2,i) ) {
+								LastSelectItem = 2;
+								LastSelectLevel = i;
+							}
+							else showWindows ("It is not Exists!");
+						}
+						else if ( hit.collider.name == ViewBody[i].name ) {
+							if ( DrawNextItem (3,i) ) {
+								LastSelectItem = 3;
+								LastSelectLevel = i;
+							}
+							else showWindows ("It is not Exists!");
+						}
+					}
 				}
 			//	else if ( hit.collider.name == ViewTable[4].name )
 			//		ViewTable[4].transform.position = new Vector3(0,1,10);
 			//	Debug.Log (hit.collider.name);
             }
 
-			TextMesh textMesh = Money.GetComponent<TextMesh>();
-			textMesh.text = "Seed : "+money.ToString ();
+	//		TextMesh textMesh = Money.GetComponent<TextMesh>();
+	//		textMesh.text = "Seed : "+money.ToString ();
 		}
 		//Debug.Log ("asdf");
 	}
@@ -168,16 +223,22 @@ public class Status : MonoBehaviour {
 				else textMesh.text = ShowItemType[i,j]+" : "+Items[hash[i]][lv[i]][JsonItemType[i,j]].ToString ();
 			}
 	}
-	bool DrawNextItem(int ItemType) {
+	bool DrawNextItem(int ItemType,int select_lv) {
 		int [] lv = new int[4];
 		lv [0] = UserData.Instance.HelmetLevel;
 		lv [1] = UserData.Instance.HeadLevel;
 		lv [2] = UserData.Instance.SwordLevel;
 		lv [3] = UserData.Instance.BodyLevel;
 
-		if ( lv[ItemType] == Items[hash[ItemType]].Count-1 ) 
+		if ( lv[ItemType] >= Items[hash[ItemType]].Count ) 
 			return false;
 
+		if ( ItemType == 0 && !UserData.Instance.HelmetExists[select_lv] ) return false;
+		if ( ItemType == 1 && !UserData.Instance.HeadExists[select_lv] ) return false;
+		if ( ItemType == 2 && !UserData.Instance.SwordExists[select_lv] ) return false;
+		if ( ItemType == 3 && !UserData.Instance.BodyExists[select_lv] ) return false;
+
+		ViewTable [4].transform.position = new Vector3 (0, 1, -1.4f);
 		for ( int j = 1 ; j < 4 ; j++ ) { 
 			TextMesh textMesh = ViewPresentItem[j].GetComponent<TextMesh>();
 			if ( j == 1 ) {
@@ -186,7 +247,8 @@ public class Status : MonoBehaviour {
 			}
 			else textMesh.text = ShowItemType[ItemType,j]+" : "+Items[hash[ItemType]][lv[ItemType]][JsonItemType[ItemType,j]].ToString ();
 		}
-		int nextLv = lv[ItemType]+1;
+		//int nextLv = lv[ItemType]+1;
+		int nextLv = select_lv;
 		for ( int j = 1 ; j < 4 ; j++ ) {
 			TextMesh textMesh = ViewNextItem[j].GetComponent<TextMesh>();
 			if ( j == 1 ) { 
@@ -195,8 +257,8 @@ public class Status : MonoBehaviour {
 			}
 			else textMesh.text = ShowItemType[ItemType,j]+" : "+Items[hash[ItemType]][nextLv][JsonItemType[ItemType,j]].ToString ();
 		}
-		TextMesh price = ViewNextItem[4].GetComponent<TextMesh>();
-		price.text = "Price\t:\t" + Items [hash [ItemType]] [nextLv] ["price"].ToString ();
+		//TextMesh price = ViewNextItem[4].GetComponent<TextMesh>();
+		//price.text = "Price\t:\t" + Items [hash [ItemType]] [nextLv] ["price"].ToString ();
 		return true;
 	}
 	void isLastItem(int ItemType) {
@@ -211,24 +273,24 @@ public class Status : MonoBehaviour {
 
 		return money >= (int)Items [hash [ItemType]] [lv [ItemType] + 1] ["price"];
 	}
-	void BuyItem(int ItemType) {
+	void BuyItem(int ItemType,int LastSelectLevel) {
 		int [] lv = new int[4];
 		lv [0] = UserData.Instance.HelmetLevel;
 		lv [1] = UserData.Instance.HeadLevel;
 		lv [2] = UserData.Instance.SwordLevel;
 		lv [3] = UserData.Instance.BodyLevel;
-		if ( !isPossibleBuyItem (ItemType) ) 
-			showWindows("is not enough Seed!");
-		else {
-			money -= (int)Items[hash[ItemType]][lv[ItemType]+1]["price"];
-			UserData.Instance.Coin = money;
+//		if ( !isPossibleBuyItem (ItemType) ) 
+//			showWindows("is not enough Seed!");
+//		else {
+//			money -= (int)Items[hash[ItemType]][lv[ItemType]+1]["price"];
+//			UserData.Instance.Coin = money;
 
-			if ( ItemType == 0 ) UserData.Instance.HelmetLevel++;
-			else if ( ItemType == 1 ) UserData.Instance.HeadLevel++;
-			else if ( ItemType == 2 ) UserData.Instance.SwordLevel++;
-			else if ( ItemType == 3 ) UserData.Instance.BodyLevel++;
+			if ( ItemType == 0 ) UserData.Instance.HelmetLevel = LastSelectLevel;
+		else if ( ItemType == 1 ) UserData.Instance.HeadLevel = LastSelectLevel;
+		else if ( ItemType == 2 ) UserData.Instance.SwordLevel = LastSelectLevel;
+		else if ( ItemType == 3 ) UserData.Instance.BodyLevel = LastSelectLevel;
 			showWindows ("success");
-		}
+//		}
 	}
 	void showWindows(string s) {
 		ViewTable [5].transform.position = new Vector3 (0, 1, -1.5f);
@@ -237,5 +299,27 @@ public class Status : MonoBehaviour {
 	}
 	void closeWindows() {
 		ViewTable [5].transform.position = new Vector3 (0, 1, 10);
+	}
+	void closeItemTable() {
+		ViewHelmetTable.transform.position = new Vector3 (0, 1f, 10);
+		ViewHeadTable.transform.position = new Vector3 (0, 1f, 10);
+		ViewSwordTable.transform.position = new Vector3 (0, 1f, 10);
+		ViewBodyTable.transform.position = new Vector3 (0, 1f, 10);
+	}
+	void SetItemColor() {
+		for ( int i = 0 ; i < UserData.ITEM_SIZE ; i++ ) {
+			if ( UserData.Instance.HelmetExists[i] ) 
+				ViewHelmet[i].gameObject.GetComponent<tk2dSprite>().color = new Color(1,1,1);
+			else ViewHelmet[i].gameObject.GetComponent<tk2dSprite>().color = new Color(0,0,0);
+			if ( UserData.Instance.HeadExists[i] ) 
+				ViewHead[i].gameObject.GetComponent<tk2dSprite>().color = new Color(1,1,1);
+			else ViewHead[i].gameObject.GetComponent<tk2dSprite>().color = new Color(0,0,0);
+			if ( UserData.Instance.SwordExists[i] ) 
+				ViewSword[i].gameObject.GetComponent<tk2dSprite>().color = new Color(1,1,1);
+			else ViewSword[i].gameObject.GetComponent<tk2dSprite>().color = new Color(0,0,0);
+			if ( UserData.Instance.BodyExists[i] ) 
+				ViewBody[i].gameObject.GetComponent<tk2dSprite>().color = new Color(1,1,1);
+			else ViewBody[i].gameObject.GetComponent<tk2dSprite>().color = new Color(0,0,0);
+		}
 	}
 }
