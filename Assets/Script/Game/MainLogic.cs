@@ -8,7 +8,6 @@ public class MainLogic : MonoBehaviour {
 	Stack PathStack;
 	bool NowBreaking;
 	int FallingCount;
-	int Turn;
 	int Damage_now = 0;
 
 	// Use this for initialization
@@ -17,15 +16,25 @@ public class MainLogic : MonoBehaviour {
 
 	void Start () {
 		player = GameObject.Find ("Player");
-		Turn = 0;
-		PathStack = new Stack();
 		int i,j;
 		for(i=0;i<TILE_SIZE;i++){
 			for(j=0;j<TILE_SIZE;j++){
 				main_Tile[i,j] = new Tile(i,j,GameObject.Find ("AllTiles"));
+				main_Tile[i,j].myStatus.myAttack = UserData.Instance.TS[i,j].myAttack;
+				main_Tile[i,j].myStatus.myHp = UserData.Instance.TS[i,j].myHp;
+				main_Tile[i,j].myStatus.myTurn = UserData.Instance.TS[i,j].myTurn;
+				main_Tile[i,j].myStatus.myX = UserData.Instance.TS[i,j].myX;
+				main_Tile[i,j].myStatus.myY = UserData.Instance.TS[i,j].myY;
+				main_Tile[i,j].myStatus.myType = UserData.Instance.TS[i,j].myType;
+				main_Tile[i,j].SetHp ();
+				main_Tile[i,j].SetAtk ();
+				main_Tile[i,j].SetTileByStatus();
+
 				touch_Check[i,j] = false;
 			}
 		}
+		UserData.Instance.SaveGame();
+		PathStack = new Stack();
 		NowBreaking = false;
 	}
 
@@ -33,7 +42,7 @@ public class MainLogic : MonoBehaviour {
 	void setDamage_now(int x){
 		if(x == 0){
 			// use Xien;
-			Damage_now = UserData.Instance.Xien + 1;
+			Damage_now = UserData.Instance.Xien * UserData.Instance.Int + 1;
 		}
 		else if(x == 1){
 			Damage_now += UserData.Instance.Atk;
@@ -116,6 +125,9 @@ public class MainLogic : MonoBehaviour {
 			for(j=0;j<TILE_SIZE;j++){
 				if(main_Tile[i,j].myStatus.myHp <= 0){
 					cnt ++;
+					if(main_Tile[i,j].myStatus.myType == TILETYPE.Enemy){
+						UserData.Instance.DeadEnemyCount ++;
+					}
 				}
 			}
 		}
@@ -164,7 +176,7 @@ public class MainLogic : MonoBehaviour {
 			for(i=0;i<TILE_SIZE;i++){
 				while(true){
 					if(y >= TILE_SIZE){
-						main_Tile[i,j].myStatus = new TileStatus(y,j,Turn);
+						main_Tile[i,j].myStatus = new TileStatus(y,j,UserData.Instance.Turn);
 						y ++;
 						break;
 					}
@@ -210,7 +222,6 @@ public class MainLogic : MonoBehaviour {
 	}
 	public void MonsterAttack(){
 		// ㅁㅗㄴㅅㅡㅌㅓ ㄱㅗㅇㄱㅕㄱ
-		Turn ++;
 		FallingCount = 1;
 
 		int i,j;
@@ -231,6 +242,7 @@ public class MainLogic : MonoBehaviour {
 						"oncompleteparams",main_Tile[i,j]));
 
 					UserData.Instance.Hp -= main_Tile[i,j].myStatus.myAttack;
+					if(UserData.Instance.Hp < 0) UserData.Instance.Hp = 0;
 					GameObject.Find ("UserText").GetComponent<UserText>().setStat();
 				}
 			}
@@ -251,9 +263,31 @@ public class MainLogic : MonoBehaviour {
 	public void MonsterAttackEnd(){
 		FallingCount --;
 		if(FallingCount == 0){
-			Turn ++;
-			NowBreaking = false;
+			UserData.Instance.Turn ++;
+			if(UserData.Instance.Hp <= 0){
+				GameObject.Find("Ending").GetComponent<Ending>().NowEnding(main_Tile,UserData.Instance.Turn,UserData.Instance.DeadEnemyCount);
+				UserData.Instance.haveGameData = 0;
+				SaveGame();
+			}
+			else{
+				NowBreaking = false;
+				SaveGame();
+			}
 		}
+	}
+	public void SaveGame(){
+		int i,j;
+		for(i=0;i<TILE_SIZE;i++){
+			for(j=0;j<TILE_SIZE;j++){
+				UserData.Instance.TS[i,j].myAttack = main_Tile[i,j].myStatus.myAttack;
+				UserData.Instance.TS[i,j].myHp = main_Tile[i,j].myStatus.myHp;
+				UserData.Instance.TS[i,j].myTurn = main_Tile[i,j].myStatus.myTurn;
+				UserData.Instance.TS[i,j].myX = main_Tile[i,j].myStatus.myX;
+				UserData.Instance.TS[i,j].myY = main_Tile[i,j].myStatus.myY;
+				UserData.Instance.TS[i,j].myType = main_Tile[i,j].myStatus.myType;
+			}
+		}
+		UserData.Instance.SaveGame();
 	}
 	private void Add(Vector2 newSelectedTile){
 		// Path ㅇㅔ ㅍㅛ ㅅㅣ!

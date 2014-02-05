@@ -20,7 +20,6 @@ public class Login : MonoBehaviour {
 	}
 	void LoadEnd(){
 		Application.LoadLevel(1);
-
 	}
 	// Update is called once per frame
 	void Update () {

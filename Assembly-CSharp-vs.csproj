@@ -166,6 +166,7 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
      <Compile Include="Assets\Script\Data\ItemData.cs" />
      <Compile Include="Assets\Script\Game\ComboLogic.cs" />
+     <Compile Include="Assets\Script\Game\Ending.cs" />
      <Compile Include="Assets\Script\Game\MainLogic.cs" />
      <Compile Include="Assets\Script\Game\Tile.cs" />
      <Compile Include="Assets\Script\Game\TileStatus.cs" />
@@ -173,6 +174,8 @@
      <Compile Include="Assets\Script\Login.cs" />
      <Compile Include="Assets\Script\Start\TW_Start.cs" />
      <Compile Include="Assets\Script\Status\Status.cs" />
+     <Compile Include="Assets\Script\Upgrade\Upgrade.cs" />
+     <Compile Include="Assets\Script\Upgrade\UpgradeText.cs" />
      <Compile Include="Assets\Script\User\UserData.cs" />
      <Compile Include="Assets\TK2DROOT\tk2d\Code\Camera\tk2dCamera.cs" />
      <Compile Include="Assets\TK2DROOT\tk2d\Code\Camera\tk2dCameraAnchor.cs" />
