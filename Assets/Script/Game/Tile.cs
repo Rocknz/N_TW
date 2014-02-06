@@ -5,6 +5,7 @@ public class Tile : MonoBehaviour {
 	public GameObject myTile;
 	public GameObject myHp;
 	public GameObject myAttack;
+	public GameObject AttackEffect;
 
 	public TileStatus myStatus;
 	public static tk2dSpriteCollectionData datas = (tk2dSpriteCollectionData)Resources.Load("Tiles Data/Tiles",typeof(tk2dSpriteCollectionData));
@@ -35,6 +36,17 @@ public class Tile : MonoBehaviour {
 		myAttack.name = "Atk";
 		myAttack.transform.parent = myTile.transform;
 		myAttack.transform.localPosition = new Vector3(150,-150,-1);
+		
+		AttackEffect = (GameObject)Instantiate(GameObject.Find ("Hp sample"));
+		AttackEffect.name = "Atk_Eft";
+		AttackEffect.transform.parent = myTile.transform;
+		AttackEffect.transform.localPosition = new Vector3(0,0,-2);
+		AttackEffect.transform.localScale = new Vector3(0,0,0);
+		tk2dTextMesh tm = AttackEffect.GetComponent<tk2dTextMesh>();
+		tm.color = new Color(255,0,0);
+		tm.anchor = TextAnchor.MiddleCenter;
+		tm.text = "0";
+		tm.Commit ();
 
 		SetHp();
 		SetAtk();

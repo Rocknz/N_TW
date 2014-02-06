@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class ComboLogic : MonoBehaviour {
 	public static int COMBO_LEN = 6;
+	GameObject MoneyUp;
 	GameObject[] Combo = new GameObject[COMBO_LEN];
 	GameObject[] Check = new GameObject[COMBO_LEN];
 	MainLogic.TILETYPE[] type = new MainLogic.TILETYPE[COMBO_LEN];
@@ -13,6 +14,16 @@ public class ComboLogic : MonoBehaviour {
 	}
 	void Start() {
 		int i;
+		MoneyUp = (GameObject)Instantiate(GameObject.Find ("Hp sample"));
+		MoneyUp.name = "MoneyUp";
+		MoneyUp.transform.parent = GameObject.Find ("Combo Image").transform;
+		MoneyUp.transform.localPosition = new Vector3(1000,0,-1);
+		MoneyUp.transform.localScale = new Vector3(0,0,0);
+		tk2dTextMesh tm = MoneyUp.GetComponent<tk2dTextMesh>();
+		tm.color = new Color(255,255,0);
+		tm.anchor = TextAnchor.MiddleCenter;
+		tm.Commit ();
+
 		for(i=0;i<COMBO_LEN;i++){
 			Combo[i] = new GameObject("Combo"+i.ToString());
 			Combo[i].AddComponent<tk2dSprite>();
@@ -54,6 +65,29 @@ public class ComboLogic : MonoBehaviour {
 	void AddComboEnd(){
 		if(complete >= length){
 			//Effect ! 
+			int AddCoin = 0;
+			switch(length){
+			case 3: AddCoin = 6; break;
+			case 4:	AddCoin = 10; break;
+			case 5:	AddCoin = 30; break;
+			case 6:	AddCoin = 40; break;
+			}
+			MoneyUp.GetComponent<tk2dTextMesh>().text = "Seed + " + AddCoin.ToString();
+			MoneyUp.GetComponent<tk2dTextMesh>().Commit ();
+			iTween.ScaleTo (MoneyUp, iTween.Hash(
+				"x", 200.0f,
+				"y", 200.0f,
+				"z", 0.1f,
+				"easeType", "easeOutQuad",
+				"time", 1.0f));
+			iTween.ScaleTo (MoneyUp, iTween.Hash(
+				"x", 0.0f,
+				"y", 0.0f,
+				"z", 0.1f,
+				"easeType", "easeOutQuad",
+				"delay", 1.0f,
+				"time", 1.0f));
+			UserData.Instance.Coin += AddCoin;
 			NewComboSetting ();
 		}
 	}

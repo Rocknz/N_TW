@@ -241,7 +241,6 @@ public class UserData : MonoBehaviour {
 		ins.DeadEnemyCount = 0;
 		ins.haveGameData = 1;
 
-
 //		ins.Atk = PlayerPrefs.GetInt ("Atk");
 //		ins.Def = PlayerPrefs.GetInt ("Def");
 //		ins.Int = PlayerPrefs.GetInt ("Int");

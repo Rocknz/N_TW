@@ -68,11 +68,11 @@ public class MainLogic : MonoBehaviour {
 					}
 				}
 //
-			}
-			else if(Input.touchCount != 0){
-				Vector2 V2 = Input.GetTouch(0).position;
-				Ray ray = Camera.main.ScreenPointToRay(new Vector3(V2.x,V2.y,0));
-				RaycastHit hit = new RaycastHit();
+//			}
+//			else if(Input.touchCount != 0){
+//				Vector2 V2 = Input.GetTouch(0).position;
+//				Ray ray = Camera.main.ScreenPointToRay(new Vector3(V2.x,V2.y,0));
+//				RaycastHit hit = new RaycastHit();
 //			
 				if(Physics.Raycast(ray, out hit)) {
 					foreach(Tile tiles in main_Tile){
@@ -82,8 +82,8 @@ public class MainLogic : MonoBehaviour {
 					}
 				}
 			}
-			else{
-//			else if(Input.GetButtonDown("Fire2")){
+//			else{
+			else if(Input.GetButtonDown("Fire2")){
 				int count = PathStack.Count;
 				TILETYPE type = new TILETYPE();
 				bool isEnemyAttacked = false;
@@ -236,6 +236,7 @@ public class MainLogic : MonoBehaviour {
 		FallingCount = 1;
 
 		int i,j;
+		int total = 0;
 		for(i=0;i<TILE_SIZE;i++){
 			for(j=0;j<TILE_SIZE;j++){
 				if(main_Tile[i,j].myStatus.myType == TILETYPE.Enemy && 
@@ -247,19 +248,41 @@ public class MainLogic : MonoBehaviour {
 						"y", 3.0f,
 						"z", 3.0f,
 						"easeType", "easeOutQuad",
-						"time", 0.5,
+						"time", 0.5f));
+					iTween.ScaleTo (main_Tile[i,j].AttackEffect, iTween.Hash(
+						"x", 100.0f,
+						"y", 100.0f,
+						"z", 0.1f,
+						"easeType", "easeOutQuad",
+						"delay", 0.3f,
+						"time", 0.5f));
+					iTween.ScaleTo (main_Tile[i,j].AttackEffect, iTween.Hash(
+						"x", 0.0f,
+						"y", 0.0f,
+						"z", 0.1f,
+						"easeType", "easeOutQuad",
+						"delay", 0.8f,
+						"time", 0.4f,
 						"oncomplete","MonsterAttackEnd",
 						"oncompletetarget",gameObject,
 						"oncompleteparams",main_Tile[i,j]));
 
 					if(UserData.Instance.Def <= main_Tile[i,j].myStatus.myAttack){
 						UserData.Instance.Hp -= (main_Tile[i,j].myStatus.myAttack - UserData.Instance.Def);
+						total += (main_Tile[i,j].myStatus.myAttack - UserData.Instance.Def);
+						main_Tile[i,j].AttackEffect.GetComponent<tk2dTextMesh>().text = (UserData.Instance.Def - main_Tile[i,j].myStatus.myAttack).ToString();
+						main_Tile[i,j].AttackEffect.GetComponent<tk2dTextMesh>().Commit();
+					}
+					else{
+						main_Tile[i,j].AttackEffect.GetComponent<tk2dTextMesh>().text = "0";
+						main_Tile[i,j].AttackEffect.GetComponent<tk2dTextMesh>().Commit();
 					}
 					if(UserData.Instance.Hp < 0) UserData.Instance.Hp = 0;
 					GameObject.Find ("UserText").GetComponent<UserText>().setStat();
 				}
 			}
 		}
+		GameObject.Find ("UserText").GetComponent<UserText>().BeAttacked(total);
 		if(FallingCount != 1){
 			StartCoroutine("MonsterAttackAction");
 		}

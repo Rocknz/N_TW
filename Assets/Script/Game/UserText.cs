@@ -4,7 +4,7 @@ public class UserText : MonoBehaviour {
 	GameObject Atk;
 	GameObject Int;
 	GameObject Def;
-	GameObject Hp;
+	GameObject Hp,HpDamage;
 	GameObject Xien;
 	GameObject Coin;
 	GameObject DMG;
@@ -13,10 +13,30 @@ public class UserText : MonoBehaviour {
 		Int = GameObject.Find ("Int Gap");
 		Def = GameObject.Find ("Def Gap");
 		Hp = GameObject.Find ("Hp Gap");
+		HpDamage = GameObject.Find ("Hp Damage");
 		Xien = GameObject.Find ("Xien Gap");
 		Coin = GameObject.Find ("Coin Gap");
 		DMG = GameObject.Find ("DMG Gap");
 		setStat();
+	}
+	public void BeAttacked(int Damage){
+		HpDamage.transform.localPosition = new Vector3(700,0,90);
+		HpDamage.GetComponent<tk2dTextMesh>().text = "-" + Damage.ToString();
+		HpDamage.GetComponent<tk2dTextMesh>().color = new Color(130,130,130);
+		HpDamage.GetComponent<tk2dTextMesh>().Commit ();
+
+		iTween.MoveTo(HpDamage, iTween.Hash(
+			"x", HpDamage.transform.localPosition.x + HpDamage.transform.parent.localPosition.x,
+			"y", HpDamage.transform.localPosition.y + 100 + HpDamage.transform.parent.localPosition.y,
+			"easeType", "easeOutQuad",
+			"time", 1.0f,
+			"oncomplete","UT_End",
+			"oncompletetarget",gameObject,
+			"oncompleteparams",HpDamage));
+	}
+	public void UT_End(GameObject x){
+		HpDamage.GetComponent<tk2dTextMesh>().text = "";
+		HpDamage.GetComponent<tk2dTextMesh>().Commit ();
 	}
 	public void setStat(){
 		Atk.GetComponent<tk2dTextMesh>().text = UserData.Instance.Atk.ToString();
